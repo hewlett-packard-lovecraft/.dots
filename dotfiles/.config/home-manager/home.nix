@@ -47,7 +47,7 @@
     pkgs.gh
     pkgs.emacs
     pkgs.neovim
-    pkgs.nixfmt-rfc-style
+    pkgs.nixfmt
     pkgs.fzf
     pkgs.tmux
     pkgs.tmuxp
@@ -58,6 +58,17 @@
     pkgs.zsh-nix-shell
     pkgs.zsh-vi-mode
     pkgs.zsh-you-should-use
+
+    pkgs.cargo
+    pkgs.rustc
+    pkgs.emacs-lsp-booster
+    pkgs.clang-tools
+    pkgs.bear
+
+    pkgs.pyright
+    pkgs.pandoc
+
+    pkgs.deno
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -99,20 +110,21 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-  programs.git = {
-    enable = true;
-    settings = {
-      user.name = "Howard Xia";
-      user.email = "hx2314@nyu.edu";
-    };
-  };
   programs.gh = {
     enable = true;
+    gitCredentialHelper.enable = true;
     settings = {
       git_protocol = "ssh";
       prompt = "enabled";
       color_labels = "enabled";
       spineer = "enabled";
+    };
+  };
+  programs.git = {
+    enable = true;
+    settings.user = {
+      name = "Hao Ming Xia";
+      email = "hx2314@nyu.edu";
     };
   };
   programs.fzf = {
@@ -122,6 +134,12 @@
     tmux = {
       enableShellIntegration = true;
     };
+  };
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    enableBashIntegration = true; # see note on other shells below
+    nix-direnv.enable = true;
   };
   programs.zsh = {
     enable = true;
@@ -173,7 +191,7 @@
         zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
       '';
       plugins = [
-        "emacs"
+        "direnv"
         "vi-mode"
         "git" # also requires `programs.git.enable = true;`
         "github"
@@ -187,6 +205,10 @@
       ll = "ls -l";
       la = "ls -la";
       update = "home-manager switch";
+      # e= "emacs";
+      # te = "emacs -nw";
+      e = "emacsclient -c";
+      te = "emacsclient -t";
     };
   };
 
@@ -197,6 +219,20 @@
     prefix = "C-a";
     mouse = true;
     baseIndex = 1;
+    extraConfig = ''
+# Start windows and panes at 1, not 0
+set -g base-index 1
+setw -g pane-base-index 1
+
+# change prefix
+# unbind -n C-b
+set -g prefix2 C-a
+bind -n C-a send-prefix
+
+# mouse
+setw -g mouse on
+setw -g alternate-screen on
+    '';
   };
   programs.vim = {
     enable = true;
@@ -255,5 +291,9 @@
   fonts.fontconfig = {
     enable = true;
     defaultFonts.monospace = [ "Iosevka Nerd Font 12" ];
+  };
+  services.emacs = {
+    enable = true;
+    package = pkgs.emacs; # replace with emacs-gtk, or a version provided by the community overlay if desired.
   };
 }
