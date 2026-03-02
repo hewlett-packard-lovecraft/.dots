@@ -7,7 +7,7 @@
   home.homeDirectory = "/home/hxia";
 
   # tell home-manager we aren't using NixOS
-  targets.genericLinux.enable = true;
+  # targets.genericLinux.enable = true;
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -45,7 +45,7 @@
 
     pkgs.git
     pkgs.gh
-    pkgs.emacs
+    pkgs.emacs-pgtk
     pkgs.neovim
     pkgs.nixfmt
     pkgs.fzf
@@ -61,14 +61,40 @@
 
     pkgs.cargo
     pkgs.rustc
+    pkgs.rustfmt
     pkgs.emacs-lsp-booster
     pkgs.clang-tools
     pkgs.bear
+    pkgs.unzip
 
-    pkgs.pyright
     pkgs.pandoc
-
     pkgs.deno
+    pkgs.typescript
+    pkgs.python3
+
+    # lsp
+    pkgs.basedpyright
+    pkgs.typescript-language-server
+    # pkgs.vscode-css-languageserver
+    # pkgs.vscode-json-languageserver
+    pkgs.yaml-language-server
+    pkgs.docker-language-server
+    pkgs.bash-language-server
+    pkgs.cmake-language-server
+    pkgs.nixd
+    pkgs.vscode-langservers-extracted
+
+    # formatter
+    pkgs.ruff
+    pkgs.prettier
+    pkgs.prettierd
+
+    # emacs vterm dependencies
+    pkgs.cmake
+    pkgs.gnumake
+    pkgs.ninja
+    pkgs.libtool
+
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -104,6 +130,10 @@
   #
   home.sessionVariables = {
     EDITOR = "vim";
+    GDK_BACKEND = "wayland";
+    # GDK_SCALE="2";
+    # QT_SCALE_FACTOR = "2";
+    WINEWAYLAND_ALLOW_HIDPI = "1";
   };
 
   home.extraOutputsToInstall = [ "dev" ];
@@ -204,7 +234,8 @@
     shellAliases = {
       ll = "ls -l";
       la = "ls -la";
-      update = "home-manager switch";
+      hupdate = "home-manager switch";
+      nupdate = "home-manager switch";
       # e= "emacs";
       # te = "emacs -nw";
       e = "emacsclient -c";
@@ -213,6 +244,7 @@
   };
 
   programs.tmux = {
+    enable = true;
     tmuxp.enable = true;
     clock24 = true;
     keyMode = "vi";
@@ -220,18 +252,18 @@
     mouse = true;
     baseIndex = 1;
     extraConfig = ''
-# Start windows and panes at 1, not 0
-set -g base-index 1
-setw -g pane-base-index 1
+       # Start windows and panes at 1, not 0
+       set -g base-index 1
+       setw -g pane-base-index 1
 
-# change prefix
-# unbind -n C-b
-set -g prefix2 C-a
-bind -n C-a send-prefix
+       # change prefix
+       # unbind -n C-b
+       set -g prefix2 C-a
+       bind -n C-a send-prefix
 
-# mouse
-setw -g mouse on
-setw -g alternate-screen on
+      # mouse
+       setw -g mouse on
+       setw -g alternate-screen on
     '';
   };
   programs.vim = {
@@ -292,8 +324,15 @@ setw -g alternate-screen on
     enable = true;
     defaultFonts.monospace = [ "Iosevka Nerd Font 12" ];
   };
+
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      monospace-font-name = "Iosevka Nerd Font 12";
+    };
+  };
+
   services.emacs = {
     enable = true;
-    package = pkgs.emacs; # replace with emacs-gtk, or a version provided by the community overlay if desired.
+    package = pkgs.emacs-pgtk; # replace with emacs-gtk, or a version provided by the community overlay if desired.
   };
 }
