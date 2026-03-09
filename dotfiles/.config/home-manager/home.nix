@@ -70,7 +70,6 @@
     pkgs.pandoc
     pkgs.deno
     pkgs.typescript
-    pkgs.python3
 
     # lsp
     pkgs.basedpyright
@@ -173,10 +172,18 @@
   };
   programs.zsh = {
     enable = true;
+    enableVteIntegration = true;
     loginExtra = ''
       if [ -z "$WAYLAND_DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ] && [ `command -v <cmd>` ] ; then
           exec sway
-      fi  
+      fi
+    '';
+    envExtra = ''
+      if grep -q -i 'Microsoft' /proc/version; then
+         # export GDK_DPI_SCALE=2.0
+         # fix the huge cursor size
+         export XCURSOR_SIZE=12
+      fi
     '';
     initContent = ''
       source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
@@ -252,18 +259,26 @@
     mouse = true;
     baseIndex = 1;
     extraConfig = ''
-       # Start windows and panes at 1, not 0
-       set -g base-index 1
-       setw -g pane-base-index 1
+      # Start windows and panes at 1, not 0
+      set -g base-index 1
+      setw -g pane-base-index 1
 
-       # change prefix
-       # unbind -n C-b
-       set -g prefix2 C-a
-       bind -n C-a send-prefix
+      # change prefix
+      # unbind -n C-b
+      set -g prefix2 C-a
+      bind -n C-a send-prefix
 
       # mouse
-       setw -g mouse on
-       setw -g alternate-screen on
+      setw -g mouse on
+      setw -g alternate-screen on
+
+      # Enable passthrough of OSC 52 escape sequences
+      set -g allow-passthrough on
+      # Enable OSC 52 clipboard integration
+      set -g set-clipboard on
+
+      set -ga terminal-overrides ',xterm*:XT:Ms=\E]52;%p1%s;%p2%s\007'
+      set -ga terminal-overrides ',screen*:XT:Ms=\E]52;%p1%s;%p2%s\007'
     '';
   };
   programs.vim = {
@@ -275,37 +290,48 @@
       tabstop = 4;
     };
     extraConfig = ''
-      set nu rnu	" Show line numbers
-      set linebreak	" Break lines at word (requires Wrap lines)
-      set showbreak=++ 	" Wrap-broken line prefix
-      let textwidth=100	" Line wrap (number of cols)
-      set showmatch	" Highlight matching brace
+            set nu rnu	" Show line numbers
+            set linebreak	" Break lines at word (requires Wrap lines)
+            set showbreak=++ 	" Wrap-broken line prefix
+            let textwidth=100	" Line wrap (number of cols)
+            set showmatch	" Highlight matching brace
 
-      set hlsearch	" Highlight all search results
-      set smartcase	" Enable smart-case search
-      set ignorecase	" Always case-insensitive
-      set incsearch	" Searches for strings incrementally
+            set hlsearch	" Highlight all search results
+            set smartcase	" Enable smart-case search
+            set ignorecase	" Always case-insensitive
+            set incsearch	" Searches for strings incrementally
 
-      set textwidth=120       " break lines when line length increases
-      set softtabstop=4
-      set shiftwidth=4        " number of spaces to use for auto indent
-      set autoindent          " copy indent from current line when starting a new line
+            set textwidth=120       " break lines when line length increases
+            set softtabstop=4
+            set shiftwidth=4        " number of spaces to use for auto indent
+            set autoindent          " copy indent from current line when starting a new line
 
-      set confirm	" Prompts for confirmation
-      set ruler	" Show row and column ruler information
-      set autowriteall	" Auto-write all file changes
-      set undolevels=1000	" Number of undo levels
-      set backspace=indent,eol,start	" Backspace behaviour
-      set clipboard=unnamedplus " Use system keyboard
-      syntax on               " syntax highlighting
-      set showcmd             " show (partial) command in status line
+            set confirm	" Prompts for confirmation
+            set ruler	" Show row and column ruler information
+            set autowriteall	" Auto-write all file changes
+            set undolevels=1000	" Number of undo levels
+            set backspace=indent,eol,start	" Backspace behaviour
+            set clipboard=unnamed,unnamedplus " Use system keyboard
+            syntax on               " syntax highlighting
+            set showcmd             " show (partial) command in status line
 
-      set cmdheight=2
-      set updatetime=300
-      set shortmess+=c
-      set signcolumn=yes
-      let mapleader = " "
-      let maplocalleader = ","
+            set cmdheight=2
+            set updatetime=300
+            set shortmess+=c
+            set signcolumn=yes
+            let mapleader = " "
+            let maplocalleader = ","
+
+            set fileformat = "unix"
+            set fileformats = "unix,dos"
+
+      " WSL paste fix
+      autocmd BufReadPost * call s:lastpos()
+      function! WslCleanup()
+      silent! exe "'[,']s/\r$//g"
+      endfunction
+      nnoremap p p:call WslCleanup()
+      nnoremap P P:call WslCleanup()
     '';
   };
 
@@ -328,6 +354,7 @@
   dconf.settings = {
     "org/gnome/desktop/interface" = {
       monospace-font-name = "Iosevka Nerd Font 12";
+      cursor-size = 12;
     };
   };
 
