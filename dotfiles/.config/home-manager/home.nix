@@ -62,10 +62,12 @@
     pkgs.cargo
     pkgs.rustc
     pkgs.rustfmt
+    pkgs.dockfmt
     pkgs.emacs-lsp-booster
     pkgs.clang-tools
     pkgs.bear
     pkgs.unzip
+    pkgs.shfmt
 
     pkgs.pandoc
     pkgs.deno
@@ -87,6 +89,11 @@
     pkgs.ruff
     pkgs.prettier
     pkgs.prettierd
+    pkgs.astyle
+    pkgs.sql-formatter
+    pkgs.ispell
+    pkgs.hunspell
+    pkgs.hunspellDicts.en-ca-large
 
     # emacs vterm dependencies
     pkgs.cmake
@@ -253,25 +260,29 @@
   programs.tmux = {
     enable = true;
     tmuxp.enable = true;
+    aggressiveResize = true;
+    baseIndex = 1;
     clock24 = true;
     keyMode = "vi";
-    prefix = "C-a";
     mouse = true;
-    baseIndex = 1;
+    newSession = true;
+    shortcut = "a"; # changes prefix to C-a
+    historyLimit = 50000;
+    secureSocket = false; # use /tmp for sockets
+    escapeTime = 0; # tmux + escape craziness
+    plugins = with pkgs; [
+      tmuxPlugins.sensible
+      tmuxPlugins.resurrect
+      tmuxPlugins.better-mouse-mode
+    ];
     extraConfig = ''
-      # Start windows and panes at 1, not 0
-      set -g base-index 1
-      setw -g pane-base-index 1
+      ### https://www.reddit.com/r/tmux/comments/mesrci/tmux_2_doesnt_seem_to_use_256_colors/
+      set -g default-terminal "xterm-256color" 
+      set -ga terminal-overrides ',*256col*:Tc' # extra emacs 24bit colours
+      set -ga terminal-overrides '*:Ss=\E[%p1%d q:Se=\E[ q'
+      set-environment -g COLORTERM "truecolor"
 
-      # change prefix
-      # unbind -n C-b
-      set -g prefix2 C-a
-      bind -n C-a send-prefix
-
-      # mouse
-      setw -g mouse on
-      setw -g alternate-screen on
-
+      ### vterm
       # Enable passthrough of OSC 52 escape sequences
       set -g allow-passthrough on
       # Enable OSC 52 clipboard integration
@@ -279,6 +290,11 @@
 
       set -ga terminal-overrides ',xterm*:XT:Ms=\E]52;%p1%s;%p2%s\007'
       set -ga terminal-overrides ',screen*:XT:Ms=\E]52;%p1%s;%p2%s\007'
+
+      ### etc
+      # set -g pane-border-status top
+      # set -g pane-border-format '#[bold]#{pane_title}#[default]'
+      set -g status-position top
     '';
   };
   programs.vim = {
