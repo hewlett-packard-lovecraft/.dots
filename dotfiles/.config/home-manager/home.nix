@@ -73,6 +73,18 @@
     pkgs.deno
     pkgs.typescript
 
+    # pyenv
+    pkgs.python3
+    pkgs.gcc
+    pkgs.gnumake
+    pkgs.zlib
+    pkgs.libffi
+    pkgs.readline
+    pkgs.bzip2
+    pkgs.openssl
+    pkgs.ncurses
+    pkgs.pyenv
+
     # lsp
     pkgs.basedpyright
     pkgs.typescript-language-server
@@ -232,10 +244,10 @@
         name = pkgs.zsh-you-should-use.pname;
         src = pkgs.zsh-you-should-use.src;
       }
-      {
-        name = "zsh-vi-mode";
-        src = "${pkgs.zsh-vi-mode}/share/zsh-vi-mode";
-      }
+      # {
+      #   name = "zsh-vi-mode";
+      #   src = "${pkgs.zsh-vi-mode}/share/zsh-vi-mode";
+      # }
       {
         name = "fzf-tab";
         src = "${pkgs.zsh-fzf-tab}/share/fzf-tab";
@@ -250,7 +262,8 @@
       '';
       plugins = [
         "direnv"
-        "vi-mode"
+        # "vi-mode"
+        # "emacs"
         "git" # also requires `programs.git.enable = true;`
         "github"
         "nvm"
@@ -263,11 +276,25 @@
       ll = "ls -l";
       la = "ls -la";
       hupdate = "home-manager switch";
-      nupdate = "home-manager switch";
-      # e= "emacs";
-      # te = "emacs -nw";
+      nupdate = "sudo nixos-rebuild switch";
+      em = "emacs";
+      tem = "emacs -nw";
       e = "emacsclient -c";
       te = "emacsclient -t";
+    };
+  };
+  programs.kitty = {
+    enable = true;
+    enableGitIntegration = true;
+    font = {
+      package = pkgs.nerd-fonts.iosevka;
+      name = "Iosevka Nerd Font Mono";
+      size = 14;
+    };
+    settings = {
+      enable_audio_bell = false;
+      dynamic_background_opacity = true;
+      mouse_hide_wait = "-1.0";
     };
   };
 
