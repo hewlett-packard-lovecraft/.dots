@@ -43,9 +43,10 @@
     pkgs.noto-fonts-color-emoji
     pkgs.nerd-fonts.iosevka
 
+    pkgs.wl-clipboard
     pkgs.git
     pkgs.gh
-    pkgs.emacs-pgtk
+    pkgs.emacs
     pkgs.neovim
     pkgs.nixfmt
     pkgs.fzf
@@ -256,9 +257,10 @@
     oh-my-zsh = {
       enable = true;
       extraConfig = ''
-        zstyle ':omz:update' mode reminder  # just remind me to update when it's time
-        zstyle ':omz:update' frequency 7
-        zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+        ColorStack
+                zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+                zstyle ':omz:update' frequency 7
+                zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
       '';
       plugins = [
         "direnv"
@@ -291,11 +293,27 @@
       name = "Iosevka Nerd Font Mono";
       size = 14;
     };
+    themeFile = "Modus_Operandi";
+    shellIntegration = {
+      enableZshIntegration = true;
+      enableBashIntegration = true;
+    };
     settings = {
       enable_audio_bell = false;
       dynamic_background_opacity = true;
       mouse_hide_wait = "-1.0";
+      # kitty_mod="ctrl+alt";
+      window_padding_width = 4;
     };
+    keybindings = {
+      # "ctrl+backspace"="send_text all \x17";
+      "ctrl+shift+backspace" = "no_op";
+      "ctrl+shift+minus" = "no_op";
+      "ctrl+shift+equal" = "no_op";
+    };
+    extraConfig = ''
+      map ctrl+backspace send_text all \x17
+    '';
   };
 
   programs.tmux = {
@@ -417,6 +435,8 @@
 
   services.emacs = {
     enable = true;
-    package = pkgs.emacs-pgtk; # replace with emacs-gtk, or a version provided by the community overlay if desired.
+    socketActivation.enable = true;
+    # defaultEditor = true;
+    package = pkgs.emacs; # replace with emacs-gtk, or a version provided by the community overlay if desired.
   };
 }
