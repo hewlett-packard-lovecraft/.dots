@@ -24,6 +24,26 @@
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello
+    # pkgs.pipx
+    pkgs.postgresql
+    pkgs.postgres-language-server
+    pkgs.pgformatter
+    pkgs.sqlfluff
+
+    pkgs.devenv
+
+    pkgs.conda
+    pkgs.go
+    pkgs.go-tools
+
+    pkgs.toml2json
+    pkgs.dasel
+    pkgs.fd
+    pkgs.yq
+    pkgs.jq
+
+    pkgs.ffmpeg
+    
 
     # # It is sometimes useful to fine-tune packages, for example, by applying
     # # overrides. You can do that directly here, just don't forget the
@@ -75,7 +95,7 @@
     pkgs.typescript
 
     # pyenv
-    pkgs.python3
+    # pkgs.python3 # 
     pkgs.gcc
     pkgs.gnumake
     pkgs.zlib
@@ -84,7 +104,7 @@
     pkgs.bzip2
     pkgs.openssl
     pkgs.ncurses
-    pkgs.pyenv
+    # pkgs.pyenv
 
     # lsp
     pkgs.basedpyright
@@ -113,6 +133,9 @@
     pkgs.gnumake
     pkgs.ninja
     pkgs.libtool
+
+    # uv
+    pkgs.uv
 
   ];
 
@@ -155,8 +178,9 @@
     WINEWAYLAND_ALLOW_HIDPI = "1";
   };
 
-  home.extraOutputsToInstall = [ "dev" ];
-
+  home.extraOutputsToInstall = [ "dev" ]; 
+  # programs.nix-ld.enable = true;
+  
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
   programs.gh = {
@@ -220,6 +244,8 @@
           else
               printf "\e]%s\e\\" "$1"
           fi
+
+      export PATH="/home/hxia/.local/bin:$PATH"
       }
     '';
     localVariables = {
@@ -257,10 +283,11 @@
     oh-my-zsh = {
       enable = true;
       extraConfig = ''
-        ColorStack
-                zstyle ':omz:update' mode reminder  # just remind me to update when it's time
-                zstyle ':omz:update' frequency 7
-                zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+        zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+        zstyle ':omz:update' frequency 7
+        zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+
+        path+=(~/.local/bin/)
       '';
       plugins = [
         "direnv"
@@ -322,10 +349,10 @@
     aggressiveResize = true;
     baseIndex = 1;
     clock24 = true;
-    keyMode = "vi";
+    keyMode = "emacs";
     mouse = true;
     newSession = true;
-    shortcut = "a"; # changes prefix to C-a
+    shortcut = "b"; # changes prefix to C-a
     historyLimit = 50000;
     secureSocket = false; # use /tmp for sockets
     escapeTime = 0; # tmux + escape craziness
@@ -343,9 +370,9 @@
 
       ### vterm
       # Enable passthrough of OSC 52 escape sequences
-      set -g allow-passthrough on
+      # set -g allow-passthrough on
       # Enable OSC 52 clipboard integration
-      set -g set-clipboard on
+      # set -g set-clipboard on
 
       set -ga terminal-overrides ',xterm*:XT:Ms=\E]52;%p1%s;%p2%s\007'
       set -ga terminal-overrides ',screen*:XT:Ms=\E]52;%p1%s;%p2%s\007'
@@ -365,48 +392,40 @@
       tabstop = 4;
     };
     extraConfig = ''
-            set nu rnu	" Show line numbers
-            set linebreak	" Break lines at word (requires Wrap lines)
-            set showbreak=++ 	" Wrap-broken line prefix
-            let textwidth=100	" Line wrap (number of cols)
-            set showmatch	" Highlight matching brace
+      set nu rnu	" Show line numbers
+      set linebreak	" Break lines at word (requires Wrap lines)
+      set showbreak=++ 	" Wrap-broken line prefix
+      let textwidth=100	" Line wrap (number of cols)
+      set showmatch	" Highlight matching brace
 
-            set hlsearch	" Highlight all search results
-            set smartcase	" Enable smart-case search
-            set ignorecase	" Always case-insensitive
-            set incsearch	" Searches for strings incrementally
+      set hlsearch	" Highlight all search results
+      set smartcase	" Enable smart-case search
+      set ignorecase	" Always case-insensitive
+      set incsearch	" Searches for strings incrementally
 
-            set textwidth=120       " break lines when line length increases
-            set softtabstop=4
-            set shiftwidth=4        " number of spaces to use for auto indent
-            set autoindent          " copy indent from current line when starting a new line
+      set textwidth=120       " break lines when line length increases
+      set softtabstop=4
+      set shiftwidth=4        " number of spaces to use for auto indent
+      set autoindent          " copy indent from current line when starting a new line
 
-            set confirm	" Prompts for confirmation
-            set ruler	" Show row and column ruler information
-            set autowriteall	" Auto-write all file changes
-            set undolevels=1000	" Number of undo levels
-            set backspace=indent,eol,start	" Backspace behaviour
-            set clipboard=unnamed,unnamedplus " Use system keyboard
-            syntax on               " syntax highlighting
-            set showcmd             " show (partial) command in status line
+      set confirm	" Prompts for confirmation
+      set ruler	" Show row and column ruler information
+      set autowriteall	" Auto-write all file changes
+      set undolevels=1000	" Number of undo levels
+      set backspace=indent,eol,start	" Backspace behaviour
+      set clipboard=unnamed,unnamedplus " Use system keyboard
+      syntax on               " syntax highlighting
+      set showcmd             " show (partial) command in status line
 
-            set cmdheight=2
-            set updatetime=300
-            set shortmess+=c
-            set signcolumn=yes
-            let mapleader = " "
-            let maplocalleader = ","
+      set cmdheight=2
+      set updatetime=300
+      set shortmess+=c
+      set signcolumn=yes
+      let mapleader = " "
+      let maplocalleader = ","
 
-            set fileformat = "unix"
-            set fileformats = "unix,dos"
-
-      " WSL paste fix
-      autocmd BufReadPost * call s:lastpos()
-      function! WslCleanup()
-      silent! exe "'[,']s/\r$//g"
-      endfunction
-      nnoremap p p:call WslCleanup()
-      nnoremap P P:call WslCleanup()
+      set fileformat = "unix"
+      set fileformats = "unix,dos"
     '';
   };
 
