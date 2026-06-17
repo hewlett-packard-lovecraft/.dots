@@ -1,0 +1,1 @@
+/home/hxia/.dots/dotfiles/.config/sway/.config.d

@@ -7,7 +7,7 @@
   home.homeDirectory = "/home/hxia";
 
   # tell home-manager we aren't using NixOS
-  # targets.genericLinux.enable = true;
+  targets.genericLinux.enable = true;
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -35,6 +35,10 @@
     pkgs.conda
     pkgs.go
     pkgs.go-tools
+    pkgs.gopls
+    pkgs.govulncheck
+    pkgs.golangci-lint
+    pkgs.golangci-lint-langserver
 
     pkgs.toml2json
     pkgs.dasel
@@ -43,7 +47,6 @@
     pkgs.jq
 
     pkgs.ffmpeg
-    
 
     # # It is sometimes useful to fine-tune packages, for example, by applying
     # # overrides. You can do that directly here, just don't forget the
@@ -64,7 +67,6 @@
     pkgs.nerd-fonts.iosevka
 
     pkgs.wl-clipboard
-    pkgs.git
     pkgs.gh
     pkgs.emacs
     pkgs.neovim
@@ -73,6 +75,8 @@
     pkgs.tmux
     pkgs.tmuxp
     pkgs.texlab
+
+    pkgs.zig
 
     pkgs.zsh
     pkgs.zsh-fzf-tab
@@ -90,12 +94,14 @@
     pkgs.unzip
     pkgs.shfmt
 
+    pkgs.ripgrep
+
     pkgs.pandoc
     pkgs.deno
     pkgs.typescript
 
     # pyenv
-    # pkgs.python3 # 
+    # pkgs.python3 #
     pkgs.gcc
     pkgs.gnumake
     pkgs.zlib
@@ -117,6 +123,16 @@
     pkgs.cmake-language-server
     pkgs.nixd
     pkgs.vscode-langservers-extracted
+    pkgs.tailwindcss-language-server
+
+    pkgs.dotenv-cli
+
+    pkgs.vue-language-server
+    pkgs.oxfmt
+    pkgs.oxlint
+    pkgs.biome
+    pkgs.rassumfrassum
+    pkgs.eslint
 
     # formatter
     pkgs.ruff
@@ -178,13 +194,16 @@
     WINEWAYLAND_ALLOW_HIDPI = "1";
   };
 
-  home.extraOutputsToInstall = [ "dev" ]; 
-  # programs.nix-ld.enable = true;
-  
+  home.sessionPath = [
+    "$HOME/.kimi-code/bin"
+  ];
+
+  home.extraOutputsToInstall = [ "dev" ];
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
   programs.gh = {
-    enable = true;
+    enable = false;
     gitCredentialHelper.enable = true;
     settings = {
       git_protocol = "ssh";
@@ -194,7 +213,7 @@
     };
   };
   programs.git = {
-    enable = true;
+    enable = false;
     settings.user = {
       name = "Hao Ming Xia";
       email = "hx2314@nyu.edu";
@@ -244,7 +263,6 @@
           else
               printf "\e]%s\e\\" "$1"
           fi
-
       export PATH="/home/hxia/.local/bin:$PATH"
       }
     '';
@@ -287,7 +305,20 @@
         zstyle ':omz:update' frequency 7
         zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 
-        path+=(~/.local/bin/)
+        # preview directory's content with eza when completing cd
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+        # custom fzf flags
+        # NOTE: fzf-tab does not follow FZF_DEFAULT_OPTS by default
+        # zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 # --bind=tab:accept
+
+        # To make fzf-tab follow FZF_DEFAULT_OPTS.
+        # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
+        zstyle ':fzf-tab:*' use-fzf-default-opts yes
+
+        # switch group using `<` and `>`
+        zstyle ':fzf-tab:*' switch-group '<' '>'
+
+        path+=("/home/hxia/.local/bin" "/home/hxia/.kimi-code/bin")
       '';
       plugins = [
         "direnv"
@@ -312,6 +343,7 @@
       te = "emacsclient -t";
     };
   };
+
   programs.kitty = {
     enable = true;
     enableGitIntegration = true;
@@ -320,7 +352,7 @@
       name = "Iosevka Nerd Font Mono";
       size = 14;
     };
-    themeFile = "Modus_Operandi";
+    themeFile = "Modus_Vivendi_Tinted";
     shellIntegration = {
       enableZshIntegration = true;
       enableBashIntegration = true;
@@ -352,7 +384,7 @@
     keyMode = "emacs";
     mouse = true;
     newSession = true;
-    shortcut = "b"; # changes prefix to C-a
+    shortcut = "t"; # changes prefix to C-|
     historyLimit = 50000;
     secureSocket = false; # use /tmp for sockets
     escapeTime = 0; # tmux + escape craziness

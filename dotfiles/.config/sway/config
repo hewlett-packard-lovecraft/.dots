@@ -4,29 +4,45 @@
 #
 # Read `man 5 sway` for a complete reference.
 
-exec_always systemctl --user start sway-session.target
-
 ### Background and colors
-# include "$HOME/.config/sway/colors-sway"
 set $wallpaper /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png
+set $wallpaper1 "$HOME/Pictures/Wallpaper/bhwhitedragon_irys_clean.jpeg"
+set $wallpaper2 "$HOME/Pictures/Wallpaper/__ninomae_ina_nis_hololive_and_1_more_drawn_by_liimonchi__0aecdf795c6dce29828d8207ddfdb3ed.png"
 
-output * bg $wallpaper fill
+output * bg $wallpaper2 fill
+output * bg $wallpaper1 fit
 
 # │ class │ border  │ background │ text    │ indicator │ child_border │
 
 # client.focused $color0 $background $foreground $color7 $background
 
-font pango:Iosevka NF 12
-# font pango:RobotoMonoNerdFont 10
-# font pango:Cantarell 14px
+# Custom Theming
+    # include "$HOME/.cache/wal/sway-colors"
+
+    #client.<class> <border> <background> <text> <indicator> <child_border> 
+
+    # client.focused "$color0" "$color0" "$foreground" "$color8" "$color0"
+    # client.focused_inactive "#23242a" "#2b2b2b" "#888888" "#000000" "#000000"
+    # client.unfocused "#2c2c2c" "#2b2b2b" "#888888" "#000000" "#000000"
+
+    #border_images.focused ~/.mods/sway-borders/contrib/borders/shadows.png
+    #border_images.focused ~/test.png
+    #border_images.focused_inactive ~/.mods/sway-borders/contrib/borders/shadows.png
+    #border_images.unfocused ~/.mods/sway-borders/contrib/borders/shadows.png
+    #border_images.urgent ~/.mods/sway-borders/contrib/border/image.png
+
+
+# font pango:Iosevka NF 12
+# font pango:RobotoMonoNerhewlettngo:Cantarell 14px
 
 smart_borders on
 hide_edge_borders smart_no_gaps
-# default_border pixel 2
 
-# hide titlebar
-default_border none
-default_floating_border none
+default_border pixel 2
+default_floating_border pixel 2
+
+# default_border normal
+# deault_floating_border normal
 
 
 ### GTK
@@ -36,8 +52,12 @@ exec_always {
     gsettings set $gnome-schema gtk-theme 'Adwaita-dark'
     gsettings set $gnome-schema icon-theme 'Adwaita'
     gsettings set $gnome-schema cursor-theme 'Adwaita'
-    gsettings set $gnome-schema font-name 'RobotoMonoNerdFont"
+    # gsettings set $gnome-schema font-name 'RobotoMonoNerdFont'
+    gsettings set $gnome-schema font-name 'Cantarell'
+    xdg-settings set default-web-browser firefox.desktop
 }
+
+
 
 ### Variables
 #
@@ -67,7 +87,7 @@ set $menu wmenu-run
 # input 1046:911:Goodix_Capacitive_TouchScreen map_to_output DSI-1
 input 1046:928:Goodix_Capacitive_TouchScreen map_to_output eDP-1
 
-output eDP-1 scale 1
+output eDP-1 scale 2
 
 ### Idle configuration
 #
@@ -82,10 +102,15 @@ output eDP-1 scale 1
 # your displays after another 300 seconds, and turn your screens back on when
 # resumed. It will also lock your screen before your computer goes to sleep.
 
- exec swayidle -w \
-          timeout 300 'swaylock -f -c 000000' \
-          timeout 600 'systemctl suspend' \
-          before-sleep 'playerctl pause; swaylock -f -c 000000'
+# Lock screen after 300 seconds (5 minutes) of inactivity
+# Suspend after 600 seconds (10 minutes), but only if on battery
+
+# exec swayidle -w \
+#     timeout 300 'if upower -i $(upower -e | grep battery) | grep -q "state: *discharging"; then swaylock -f -c 000000; fi' \
+#     timeout 600 'if upower -i $(upower -e | grep battery) | grep -q "state: *discharging"; then systemctl suspend; fi' \
+#     resume 'swaymsg "output * dpms on"' \
+#     before-sleep 'swaylock -f -c 000000'
+
 
 ### Input configuration
 #
@@ -98,15 +123,16 @@ output eDP-1 scale 1
 #       middle_emulation enabled
 #   }
 
-# gpdwinmax
-# input "2362:597:HTIX5288:00_093A:0255_Touchpad" {
-
 input "type:touchpad" {
       dwt enabled
       tap enabled
-      natural_scroll enabled
       middle_emulation enabled
+      natural_scroll enabled
+      scroll_method two_finger
+      scroll_factor 0.5
       accel_profile "adaptive"
+      pointer_accel -0.2  # Adjust between -1.0 and 1.0 for desired speed
+      drag_lock disabled  # Fixes sticky/clunky drag-and-drop
 }
 
 input "type:pointer" {
@@ -292,7 +318,7 @@ bindsym $mod+r mode "resize"
     bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
     bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
     # Special key to take a screenshot with grim
-    bindsym Print exec grim
+    bindsym Print exec grim -g "$(slurp)" - | wl-copy
 
 #
 # Multi-monitor:
@@ -311,7 +337,28 @@ bindsym $mod+Mod1+Shift+s move container to output HDMI-A-1
 # Move container to relative monitor position
 bindsym $mod+Mod1+Shift+Left move container to output left
 bindsym $mod+Mod1+Shift+Right move container to output right
+bindsym $mod+Mod1+Shift+Up move container to output up
+bindsym $mod+Mod1+Shift+Down move container to output down
 
+
+# Move workspace to relative monitor position
+bindsym $mod+Control+Shift+Right move workspace to output right
+bindsym $mod+Control+Shift+Left move workspace to output left
+bindsym $mod+Control+Shift+Up move\\ workspace to output up
+bindsym $mod+Control+Shift+Down move workspace to output down
+
+#
+# applications stuff
+#
+
+for_window [app_id="firefox" title="Picture-in-Picture"] floating enable, sticky enable
+
+#
+# desktop notifs
+#
+
+# Toggle control center
+bindsym $mod+Shift+n exec swaync-client -t -sw
 
 #
 # Status Bar:
@@ -339,12 +386,35 @@ bar swaybar_command waybar
 #    # statusline $foreground
 #    # focused_workspace $color2 $color10 #ffffff
 #    # }
-#}
+# }
+
+# Wayland environment variables must be imported into the systemd user session
+# exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+
+exec_always systemctl --user start sway-session.target
+exec_always systemctl --user try-restart kanshi.service
+exec_always systemctl --user try-restart swaync.service
 
 include /etc/sway/config.d/*
+include "$HOME/.config/sway/.config.d/"
 
 ### autostart
 
-exec swaymsg "workspace 1; exec keepassxc --minimized;"
-exec swaymsg "workspace 1; exec blueman-applet;"
+# Launch and format the dropdown terminal
+exec foot -t "Dropdown Terminal"
 
+for_window [title="Dropdown Terminal"] {
+    floating enable
+    border none
+    resize set width 100 ppt height 40 ppt
+    move absolute position center
+    move to scratchpad
+}
+
+# Keybinding to toggle the dropdown (e.g., F12) 
+bindsym F12 [title="Dropdown Terminal"] scratchpad show
+
+exec swaymsg "workspace 1; exec keepassxc --minimized;"
+exec swaymsg "workspace 1; exec onedrivegui;"
+exec swaymsg "workspace 1; exec blueman-applet;"
+exec swaymsg "workspace 1; exec nm-applet --indicator;"
