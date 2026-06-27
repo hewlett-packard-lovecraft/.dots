@@ -9,6 +9,12 @@
   # tell home-manager we aren't using NixOS
   targets.genericLinux.enable = true;
 
+  # 2. Automatically hooks the host GPU libraries into the Nix store environment
+  targets.genericLinux.gpu.enable = true;
+
+  # Example: If using NVIDIA, you must also toggle its explicit support flag
+  # targets.genericLinux.gpu.nvidia.enable = true;
+
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
   # introduces backwards incompatible changes.
@@ -31,6 +37,10 @@
     pkgs.sqlfluff
 
     pkgs.devenv
+
+    pkgs.bun
+    pkgs.pnpm
+    pkgs.nodejs
 
     pkgs.conda
     pkgs.go
@@ -192,6 +202,7 @@
     # GDK_SCALE="2";
     # QT_SCALE_FACTOR = "2";
     WINEWAYLAND_ALLOW_HIDPI = "1";
+    PATH = "$HOME/.nix-profile/bin:$PATH";
   };
 
   home.sessionPath = [
@@ -249,22 +260,23 @@
       fi
     '';
     initContent = ''
-        source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
 
-      vterm_printf() {
-          if [ -n "$TMUX" ] \
-              && { [ "''${TERM%%-*}" = "tmux" ] \
-                  || [ "''${TERM%%-*}" = "screen" ]; }; then
-              # Tell tmux to pass the escape sequences through
-              printf "\ePtmux;\e\e]%s\007\e\\" "$1"
-          elif [ "''${TERM%%-*}" = "screen" ]; then
-              # GNU screen (screen, screen-256color, screen-256color-bce)
-              printf "\eP\e]%s\007\e\\" "$1"
-          else
-              printf "\e]%s\e\\" "$1"
-          fi
-      export PATH="/home/hxia/.local/bin:$PATH"
-      }
+      source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
+
+        vterm_printf() {
+            if [ -n "$TMUX" ] \
+                && { [ "''${TERM%%-*}" = "tmux" ] \
+                    || [ "''${TERM%%-*}" = "screen" ]; }; then
+                # Tell tmux to pass the escape sequences through
+                printf "\ePtmux;\e\e]%s\007\e\\" "$1"
+            elif [ "''${TERM%%-*}" = "screen" ]; then
+                # GNU screen (screen, screen-256color, screen-256color-bce)
+                printf "\eP\e]%s\007\e\\" "$1"
+            else
+                printf "\e]%s\e\\" "$1"
+            fi
+        export PATH="/home/hxia/.local/bin:$PATH"
+        }
     '';
     localVariables = {
       CASE_SENSITIVE = true;
@@ -305,15 +317,18 @@
         zstyle ':omz:update' frequency 7
         zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 
+        zstyle ':fzf-tab:*' use-modules false
+
         # preview directory's content with eza when completing cd
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
         # custom fzf flags
         # NOTE: fzf-tab does not follow FZF_DEFAULT_OPTS by default
         # zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 # --bind=tab:accept
 
+
         # To make fzf-tab follow FZF_DEFAULT_OPTS.
         # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
-        zstyle ':fzf-tab:*' use-fzf-default-opts yes
+        # zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
         # switch group using `<` and `>`
         zstyle ':fzf-tab:*' switch-group '<' '>'
