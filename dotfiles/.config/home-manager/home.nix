@@ -38,6 +38,10 @@
 
     pkgs.devenv
 
+    pkgs.opencode
+    pkgs.opencode-desktop
+    pkgs.opencode-claude-auth
+
     pkgs.bun
     pkgs.pnpm
     pkgs.nodejs

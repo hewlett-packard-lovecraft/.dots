@@ -67,8 +67,8 @@ set $mod Mod4
 set $left h
 set $right l
 # Your preferred terminal emulator
-# set $term foot
-set $term kitty
+set $term foot
+# set $term kitty
 
 # Your preferred application launcher
 
@@ -396,25 +396,26 @@ exec_always systemctl --user try-restart kanshi.service
 exec_always systemctl --user try-restart swaync.service
 
 include /etc/sway/config.d/*
-include "$HOME/.config/sway/.config.d/"
+# include "$HOME/.config/sway/.config.d/"
 
 ### autostart
 
 # Launch and format the dropdown terminal
-exec foot -t "Dropdown Terminal"
+# exec kitty --title="Dropdown Terminal"
 
 for_window [title="Dropdown Terminal"] {
     floating enable
     border none
-    resize set width 100 ppt height 40 ppt
-    move absolute position center
+    # resize set width 100 ppt height 40 ppt
+    # move absolute position center
     move to scratchpad
 }
 
 # Keybinding to toggle the dropdown (e.g., F12) 
-bindsym F12 [title="Dropdown Terminal"] scratchpad show
+bindsym F12 exec swaymsg '[title="Dropdown Terminal"] scratchpad show'
 
 exec swaymsg "workspace 1; exec keepassxc --minimized;"
 exec swaymsg "workspace 1; exec onedrivegui;"
 exec swaymsg "workspace 1; exec blueman-applet;"
 exec swaymsg "workspace 1; exec nm-applet --indicator;"
+exec swaymsg "workspace 1; foot --title='Dropdown Terminal'"
