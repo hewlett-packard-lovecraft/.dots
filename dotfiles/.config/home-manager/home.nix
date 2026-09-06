@@ -213,7 +213,7 @@
     "$HOME/.kimi-code/bin"
   ];
 
-  home.extraOutputsToInstall = [ "dev" ];
+  #home.extraOutputsToInstall = [ "dev" ];
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;

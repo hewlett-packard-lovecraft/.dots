@@ -5,12 +5,16 @@
 # Read `man 5 sway` for a complete reference.
 
 ### Background and colors
-set $wallpaper /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png
-set $wallpaper1 "$HOME/Pictures/Wallpaper/bhwhitedragon_irys_clean.jpeg"
-set $wallpaper2 "$HOME/Pictures/Wallpaper/__ninomae_ina_nis_hololive_and_1_more_drawn_by_liimonchi__0aecdf795c6dce29828d8207ddfdb3ed.png"
+#set $wallpaper /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png
+#set $wallpaper1 "$HOME/Pictures/Wallpaper/bhwhitedragon_irys_clean.jpeg"
+#set $wallpaper2 "$HOME/Pictures/Wallpaper/__ninomae_ina_nis_hololive_and_1_more_drawn_by_liimonchi__0aecdf795c6dce29828d8207ddfdb3ed.png"
+set $wallpaper "$HOME/Pictures/Wallpaper/bhwhitedragon_irys_race_queen.jpg"
 
-output * bg $wallpaper2 fill
-output * bg $wallpaper1 fit
+
+
+
+# output * bg $wallpaper2 fill
+output * bg $wallpaper fit
 
 # │ class │ border  │ background │ text    │ indicator │ child_border │
 
@@ -48,17 +52,6 @@ default_floating_border pixel 2
 ### GTK
 set $gnome-schema org.gnome.desktop.interface
 
-exec_always {
-    gsettings set $gnome-schema gtk-theme 'Adwaita-dark'
-    gsettings set $gnome-schema icon-theme 'Adwaita'
-    gsettings set $gnome-schema cursor-theme 'Adwaita'
-    # gsettings set $gnome-schema font-name 'RobotoMonoNerdFont'
-    gsettings set $gnome-schema font-name 'Cantarell'
-    xdg-settings set default-web-browser firefox.desktop
-}
-
-
-
 ### Variables
 #
 # Logo key. Use Mod1 for Alt.
@@ -72,7 +65,7 @@ set $term foot
 
 # Your preferred application launcher
 
-set $menu wmenu-run
+set $menu fuzzel
 
 ### Output configuration
 #
@@ -105,11 +98,11 @@ output eDP-1 scale 2
 # Lock screen after 300 seconds (5 minutes) of inactivity
 # Suspend after 600 seconds (10 minutes), but only if on battery
 
-# exec swayidle -w \
-#     timeout 300 'if upower -i $(upower -e | grep battery) | grep -q "state: *discharging"; then swaylock -f -c 000000; fi' \
-#     timeout 600 'if upower -i $(upower -e | grep battery) | grep -q "state: *discharging"; then systemctl suspend; fi' \
-#     resume 'swaymsg "output * dpms on"' \
-#     before-sleep 'swaylock -f -c 000000'
+exec swayidle -w \
+    timeout 300 'if upower -i $(upower -e | grep battery) | grep -q "state: *discharging"; then swaylock -f -c 000000; fi' \
+    timeout 600 'if upower -i $(upower -e | grep battery) | grep -q "state: *discharging"; then systemctl suspend; fi' \
+    resume 'swaymsg "output * dpms on"' \
+    before-sleep 'swaylock -f -c 000000'
 
 
 ### Input configuration
@@ -315,8 +308,8 @@ bindsym $mod+r mode "resize"
     bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
     bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
     # Special keys to adjust brightness via brightnessctl
-    bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
-    bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+    bindsym --locked XF86MonBrightnessDown exec brightnessctl set 1%-
+    bindsym --locked XF86MonBrightnessUp exec brightnessctl set 1%+
     # Special key to take a screenshot with grim
     bindsym Print exec grim -g "$(slurp)" - | wl-copy
 
@@ -352,6 +345,10 @@ bindsym $mod+Control+Shift+Down move workspace to output down
 #
 
 for_window [app_id="firefox" title="Picture-in-Picture"] floating enable, sticky enable
+
+# Disable idle while _ is fullscreen or focused
+for_window [app_id="foot"] inhibit_idle focus
+for_window [app_id="firefox"] inhibit_idle fullscreen
 
 #
 # desktop notifs

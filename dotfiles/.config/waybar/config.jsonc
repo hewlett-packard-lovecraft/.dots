@@ -12,7 +12,6 @@
     // -------------------------------------------------------------------------
 
     "layer": "top",
-
     "position": "top",
 
     // If height property would be not present, it'd be calculated dynamically
@@ -39,9 +38,10 @@
 	"battery",
 	"wireplumber#sink",
 	"wireplumber#source",
+	"custom/idle_inhibitor",
 	"tray",
 	"clock#date",
-	"clock#time",
+	// "clock#time",
 	"custom/notification"
     ],
 
@@ -49,6 +49,15 @@
     // -------------------------------------------------------------------------
     // Modules
     // -------------------------------------------------------------------------
+
+    "custom/idle_inhibitor": {
+	"format": "{icon}",
+	"format-icons": {
+	    "activated": "",
+	    "deactivated": ""
+	}
+	// comment
+    },
 
     "power-profiles-daemon": {
       "format": "{icon}  {profile}",
@@ -67,14 +76,14 @@
 	 "format-icons": ["", "", ""],
 	 "on-click": "helvum",
 	 "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-	 "scroll-step": 5
+	 "scroll-step": 1
      },
      "wireplumber#source": {
 	 "node-type": "Audio/Source",
 	 "format": " {volume}%",
 	 "format-muted": "",
 	 "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
-	 "scroll-step": 5
+	 "scroll-step": 2
      },
 
     "battery": {
@@ -100,15 +109,15 @@
 	"interval": 1,
 	//"format": "{:%H:%M:%S}",
 	"format": "{:L%H:%M}",
-	"tooltip": false
+	"tooltip": false,
+	"timezone": "America/Washington"
     },
 
     "clock#date": {
       "interval": 10,
       "format": "  {:L%e %b %Y}", // Icon: calendar-alt
       // "tooltip-format": "{:%e %B %Y}",
-      "tooltip-format": "{:L%Y-%m-%d %H:%M:%S}"
-
+      "tooltip-format": "{:L%Y-%m-%d %H:%M:%S}",
     },
 
     "cpu": {
