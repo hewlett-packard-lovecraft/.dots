@@ -1,4 +1,4 @@
-{ config, pkgs, lib, isWSL, ... }:
+{ pkgs, lib, ... }:
 
 let
   isWSL = builtins.pathExists "/proc/sys/fs/binfmt_misc/WSLInterop";
@@ -30,7 +30,7 @@ in
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = [
-    
+
     pkgs.woeusb-ng
     pkgs.dosfstools
     # # Adds the 'hello' command to your environment. It prints a friendly
