@@ -1,5 +1,8 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, isWSL, ... }:
 
+let
+  isWSL = builtins.pathExists "/proc/sys/fs/binfmt_misc/WSLInterop";
+in
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
@@ -27,6 +30,9 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = [
+    
+    pkgs.woeusb-ng
+    pkgs.dosfstools
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello
@@ -167,6 +173,8 @@
     # uv
     pkgs.uv
 
+  ] ++ lib.optionals (!isWSL) [
+    pkgs.wechat
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -481,12 +489,14 @@
   };
 
   programs.texlive = {
-    enable = true;
+    enable = (!isWSL);
     extraPackages = tpkgs: {
       inherit (tpkgs)
-        scheme-tetex
+        algorithms
+        scheme-full
         plex
         moderncv
+        latexmk
         ;
     };
   };
