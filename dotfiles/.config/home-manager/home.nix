@@ -414,7 +414,7 @@ in
   };
 
   programs.tmux = {
-    enable = true;
+    enable = false;
     tmuxp.enable = true;
     aggressiveResize = true;
     baseIndex = 1;
