@@ -30,6 +30,7 @@ in
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = [
+    pkgs.amdgpu_top
 
     pkgs.woeusb-ng
     pkgs.dosfstools
@@ -88,7 +89,14 @@ in
 
     pkgs.wl-clipboard
     pkgs.gh
-    pkgs.emacs
+    pkgs.enchant
+    pkgs.enchant_2
+    pkgs.zlib
+    pkgs.pkg-config
+    pkgs.libpng
+    #pkgs.poppler
+    pkgs.poppler-utils
+
     pkgs.neovim
     pkgs.nixfmt
     pkgs.fzf
@@ -158,6 +166,7 @@ in
     pkgs.ruff
     pkgs.prettier
     pkgs.prettierd
+
     pkgs.astyle
     pkgs.sql-formatter
     pkgs.ispell
@@ -173,8 +182,10 @@ in
     # uv
     pkgs.uv
 
-  ] ++ lib.optionals (!isWSL) [
+  ]
+  ++ lib.optionals (!isWSL) [
     pkgs.wechat
+    pkgs.zoom-us
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -221,7 +232,7 @@ in
     "$HOME/.kimi-code/bin"
   ];
 
-  #home.extraOutputsToInstall = [ "dev" ];
+  home.extraOutputsToInstall = [ "dev" ];
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
@@ -411,7 +422,7 @@ in
     keyMode = "emacs";
     mouse = true;
     newSession = true;
-    shortcut = "t"; # changes prefix to C-|
+    shortcut = "b"; # changes prefix to C-|
     historyLimit = 50000;
     secureSocket = false; # use /tmp for sockets
     escapeTime = 0; # tmux + escape craziness
@@ -425,21 +436,25 @@ in
       set -g default-terminal "xterm-256color" 
       set -ga terminal-overrides ',*256col*:Tc' # extra emacs 24bit colours
       set -ga terminal-overrides '*:Ss=\E[%p1%d q:Se=\E[ q'
-      set-environment -g COLORTERM "truecolor"
+      set-environment -g COLORTERM "truecoloret 
 
       ### vterm
       # Enable passthrough of OSC 52 escape sequences
-      # set -g allow-passthrough on
+      set -g allow-passthrough on
       # Enable OSC 52 clipboard integration
-      # set -g set-clipboard on
+      set -g set-clipboard on
 
-      set -ga terminal-overrides ',xterm*:XT:Ms=\E]52;%p1%s;%p2%s\007'
-      set -ga terminal-overrides ',screen*:XT:Ms=\E]52;%p1%s;%p2%s\007'
+      #set -ga terminal-overrides ',xterm*:XT:Ms=\E]52;%p1%s;%p2%s\007'
+      #set -ga terminal-overrides ',screen*:XT:Ms=\E]52;%p1%s;%p2%s\007'
 
       ### etc
       # set -g pane-border-status top
       # set -g pane-border-format '#[bold]#{pane_title}#[default]'
       set -g status-position top
+
+      set-option -g extended-keys on
+      # set-option -as terminal-features 'xterm*:extkeys'
+      set -g extended-keys-format csi-u
     '';
   };
   programs.vim = {
@@ -511,6 +526,17 @@ in
       monospace-font-name = "Iosevka Nerd Font 12";
       cursor-size = 12;
     };
+  };
+
+  programs.emacs = {
+    enable = true;
+    package = pkgs.emacs;
+    extraPackages =
+      epkgs: with epkgs; [
+        jinx
+        # pdf-tools
+        ghostel
+      ];
   };
 
   services.emacs = {
