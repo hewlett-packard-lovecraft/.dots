@@ -47,11 +47,8 @@ in
 
     pkgs.opencode
     pkgs.opencode-desktop
-    pkgs.opencode-claude-auth
 
     pkgs.bun
-    pkgs.pnpm
-    pkgs.nodejs
 
     pkgs.conda
     pkgs.go
@@ -184,8 +181,8 @@ in
 
   ]
   ++ lib.optionals (!isWSL) [
-    pkgs.wechat
-    pkgs.zoom-us
+    # pkgs.wechat
+    # pkgs.zoom-us
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -414,7 +411,7 @@ in
   };
 
   programs.tmux = {
-    enable = false;
+    enable = true;
     tmuxp.enable = true;
     aggressiveResize = true;
     baseIndex = 1;
@@ -458,7 +455,7 @@ in
     '';
   };
   programs.vim = {
-    enable = true;
+    enable = false;
     settings = {
       background = "dark";
       expandtab = true;
@@ -468,7 +465,7 @@ in
     extraConfig = ''
       set nu rnu	" Show line numbers
       set linebreak	" Break lines at word (requires Wrap lines)
-      set showbreak=++ 	" Wrap-broken line prefix
+      set showbreak=++  " Wrap-broken line prefix
       let textwidth=100	" Line wrap (number of cols)
       set showmatch	" Highlight matching brace
 
