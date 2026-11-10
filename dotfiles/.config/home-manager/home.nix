@@ -450,8 +450,11 @@ in
       set -g status-position top
 
       set-option -g extended-keys on
-      # set-option -as terminal-features 'xterm*:extkeys'
+      set-option -s extended-keys on
+
       set -g extended-keys-format csi-u
+      set -as terminal-features 'xterm*:extkeys'
+      set-option -as terminal-features 'xterm*:extkeys'
     '';
   };
   programs.vim = {
